@@ -34,8 +34,7 @@ pipeline {
         stage('Deploy Frontend with Ansible') {
             steps {
                 sh """
-                ansible-playbook \
-                  ${ANSIBLE_ROOT}/setup.yml
+                ansible-playbook ${WORKSPACE}/setup.yml
                 """
             }
         }
