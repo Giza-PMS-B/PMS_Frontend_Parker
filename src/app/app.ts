@@ -1,9 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { BookingFormComponent } from './features/booking-form/booking-form.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet,BookingFormComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
