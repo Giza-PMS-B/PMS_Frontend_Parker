@@ -10,7 +10,7 @@ pipeline {
 
     stages {
 
-        stage('Checkout Frontend') {
+        stage('Checkout Parker Frontend') {
             steps {
                 dir("${FRONTEND_DIR}") {
                     git(
@@ -22,11 +22,11 @@ pipeline {
             }
         }
 
-        stage('Build Angular') {
+        stage('Build Angular (Parker)') {
             steps {
                 dir("${FRONTEND_DIR}") {
                     sh 'npm install'
-                    sh 'npm run build'
+                    sh 'npm run build -- --base-href=/parker/'
                 }
             }
         }
@@ -43,11 +43,12 @@ pipeline {
             }
         }
 
-        stage('Deploy Frontend') {
+        stage('Deploy Parker Frontend') {
             steps {
                 sh '''
                   export ANGULAR_BUILD_DIR=${ANGULAR_BUILD_DIR}
-                  ansible-playbook infra/deploy.yml
+                  ansible-playbook infra/deploy.yml \
+                    -e angular_web_root=/var/www/parker
                 '''
             }
         }
