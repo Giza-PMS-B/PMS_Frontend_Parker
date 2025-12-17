@@ -1,0 +1,149 @@
+<div class="booking-container">
+  <div class="booking-card">
+    <!-- Header -->
+    <div class="booking-header">
+      <h1 class="booking-title">Reserve Parking Slot</h1>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loadingSites" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading parking sites...</p>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="alert alert-success">
+      <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+      </svg>
+      {{ successMessage }}
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+      </svg>
+      {{ errorMessage }}
+    </div>
+
+    <!-- Booking Form -->
+    <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()" *ngIf="!loadingSites">
+      
+      <!-- Site Name Dropdown -->
+      <div class="form-group">
+        <label for="siteId" class="form-label">
+          Site Name <span class="required">*</span>
+        </label>
+        <div class="select-wrapper">
+          <select 
+            id="siteId" 
+            formControlName="siteId" 
+            class="form-select"
+            [class.error]="siteId?.invalid && siteId?.touched">
+            <option value="">Select Site</option>
+            <option *ngFor="let site of leafSites" [value]="site.id">
+              {{ site.name }}
+            </option>
+          </select>
+          <svg class="select-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div *ngIf="siteId?.invalid && siteId?.touched" class="error-message">
+          Please select a parking site
+        </div>
+      </div>
+
+      <!-- Plate Number Input -->
+      <div class="form-group">
+        <label for="plateNumber" class="form-label">
+          Plate Number <span class="required">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="plateNumber" 
+          formControlName="plateNumber" 
+          class="form-input"
+          [class.error]="plateNumber?.invalid && plateNumber?.touched"
+          placeholder="e.g., 12ABC"
+          maxlength="8">
+        <div *ngIf="plateNumber?.invalid && plateNumber?.touched" class="error-message">
+          <span *ngIf="plateNumber?.errors?.['required']">Plate number is required</span>
+          <span *ngIf="plateNumber?.errors?.['invalidPlateNumber']">
+            Invalid format. Use 1-5 digits followed by 1-3 letters (e.g., 12ABC)
+          </span>
+        </div>
+      </div>
+
+      <!-- Phone Number Input -->
+      <div class="form-group">
+        <label for="phoneNumber" class="form-label">
+          Phone Number <span class="required">*</span>
+        </label>
+        <input 
+          type="tel" 
+          id="phoneNumber" 
+          formControlName="phoneNumber" 
+          class="form-input"
+          [class.error]="phoneNumber?.invalid && phoneNumber?.touched"
+          placeholder="05XXXXXXXX"
+          maxlength="10">
+        <div *ngIf="phoneNumber?.invalid && phoneNumber?.touched" class="error-message">
+          <span *ngIf="phoneNumber?.errors?.['required']">Phone number is required</span>
+          <span *ngIf="phoneNumber?.errors?.['invalidPhoneNumber']">
+            Invalid format. Must start with 05 and be 10 digits (e.g., 0512345678)
+          </span>
+        </div>
+      </div>
+
+      <!-- Hours Input -->
+      <div class="form-group">
+        <label for="hours" class="form-label">
+          Hours <span class="required">*</span>
+        </label>
+        <input 
+          type="number" 
+          id="hours" 
+          formControlName="hours" 
+          class="form-input"
+          [class.error]="hours?.invalid && hours?.touched"
+          min="1" 
+          max="24"
+          placeholder="1 - 24">
+        <div *ngIf="hours?.invalid && hours?.touched" class="error-message">
+          <span *ngIf="hours?.errors?.['required']">Hours is required</span>
+          <span *ngIf="hours?.errors?.['min'] || hours?.errors?.['max'] || hours?.errors?.['invalidHours']">
+            Hours must be between 1 and 24
+          </span>
+        </div>
+      </div>
+
+      <!-- Price Summary -->
+      <div class="price-summary">
+        <h2 class="price-summary-title">Price Summary</h2>
+        <div class="price-row">
+          <span class="price-label">Price per Hour:</span>
+          <span class="price-value">{{ priceCalculation.pricePerHour }} SAR</span>
+        </div>
+        <div class="price-row total">
+          <span class="price-label">Total Price:</span>
+          <span class="price-value">{{ priceCalculation.totalPrice }} SAR</span>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        class="submit-button"
+        [disabled]="!isFormValid"
+        [class.loading]="isSubmitting">
+        <span *ngIf="!isSubmitting">Book Ticket</span>
+        <span *ngIf="isSubmitting" class="button-loading">
+          <span class="spinner-small"></span>
+          Processing...
+        </span>
+      </button>
+    </form>  <!-- Closing form tag moved here -->
+  </div>
+</div>
