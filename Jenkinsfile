@@ -2,14 +2,10 @@ pipeline {
     agent any
 
     environment {
-        // Frontend repo directory (inside Jenkins workspace)
-        FRONTEND_DIR = "PMS_Frontend_Parker"
+        FRONTEND_DIR = "frontend"
+        INFRA_DIR    = "infra"
 
-        // Angular build output (dynamic)
         ANGULAR_BUILD_DIR = "${WORKSPACE}/${FRONTEND_DIR}/dist/parker/browser"
-
-        // Dynamic Ansible root (user-independent)
-        ANSIBLE_ROOT = "${env.HOME}/ParkingProject"
     }
 
     stages {
@@ -17,7 +13,11 @@ pipeline {
         stage('Checkout Frontend') {
             steps {
                 dir("${FRONTEND_DIR}") {
-                    checkout scm
+                    git(
+                        url: 'https://github.com/Giza-PMS-B/PMS_Frontend_Parker.git',
+                        branch: 'main',
+                        credentialsId: 'github-pat-wagih'
+                    )
                 }
             }
         }
@@ -31,11 +31,24 @@ pipeline {
             }
         }
 
-        stage('Deploy Frontend with Ansible') {
+        stage('Checkout Infra (Ansible)') {
             steps {
-                sh """
-                ansible-playbook ${WORKSPACE}/setup.yml
-                """
+                dir("${INFRA_DIR}") {
+                    git(
+                        url: 'https://github.com/Omar-Eldamaty/Giza-Systems-FP.git',
+                        branch: 'main',
+                        credentialsId: 'github-pat-wagih'
+                    )
+                }
+            }
+        }
+
+        stage('Deploy Frontend') {
+            steps {
+                sh '''
+                  export ANGULAR_BUILD_DIR=${ANGULAR_BUILD_DIR}
+                  ansible-playbook infra/deploy.yml
+                '''
             }
         }
     }
