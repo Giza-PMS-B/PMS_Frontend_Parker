@@ -66,12 +66,13 @@
           formControlName="plateNumber" 
           class="form-input"
           [class.error]="plateNumber?.invalid && plateNumber?.touched"
-          placeholder="e.g., 12ABC"
-          maxlength="8">
+          placeholder="e.g., 123ABC"
+          maxlength="7"
+          (input)="onPlateNumberInput($event)">
         <div *ngIf="plateNumber?.invalid && plateNumber?.touched" class="error-message">
           <span *ngIf="plateNumber?.errors?.['required']">Plate number is required</span>
           <span *ngIf="plateNumber?.errors?.['invalidPlateNumber']">
-            Invalid format. Use 1-5 digits followed by 1-3 letters (e.g., 12ABC)
+            Plate number must be 1-4 digits followed by exactly 3 letters (e.g., 123ABC)
           </span>
         </div>
       </div>

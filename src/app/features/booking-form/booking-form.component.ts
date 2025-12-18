@@ -175,4 +175,29 @@ export class BookingFormComponent implements OnInit {
   get isFormValid(): boolean {
     return this.bookingForm.valid && !this.isSubmitting;
   }
+
+  // Enforce plate number format while typing
+  onPlateNumberInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.toUpperCase();
+    
+    // Remove any characters that don't match the pattern
+    // Allow only digits at the start, then letters
+    value = value.replace(/[^0-9A-Z]/g, '');
+    
+    // Enforce max 4 digits at start
+    const digits = value.match(/^\d+/)?.[0] || '';
+    const letters = value.replace(/^\d+/, '');
+    
+    // Limit to 4 digits and 3 letters
+    const limitedDigits = digits.slice(0, 4);
+    const limitedLetters = letters.slice(0, 3);
+    
+    const newValue = limitedDigits + limitedLetters;
+    
+    if (newValue !== input.value) {
+      input.value = newValue;
+      this.bookingForm.patchValue({ plateNumber: newValue });
+    }
+  }
 }

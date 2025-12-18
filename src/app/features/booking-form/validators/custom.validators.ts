@@ -3,15 +3,16 @@ import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 export class CustomValidators {
   /**
    * Validates Saudi plate numbers
-   * Format: 1-5 digits followed by 1-3 letters
-   * Example: 12345ABC, 12AB, 1A
+   * Format: 1-4 digits followed by exactly 3 letters
+   * Example: 1ABC, 12ABC, 123ABC, 1234ABC
    */
   static plateNumber(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const value = control.value;
       if (!value) return null; // If empty, let required validator handle it
       
-      const plateRegex = /^\d{1,5}[A-Za-z]{1,3}$/;
+      // Accepts 1-4 digits followed by exactly 3 letters (English or Arabic)
+      const plateRegex = /^[\u0660-\u0669\d]{1,4}[\u0621-\u064AA-Z]{3}$/u;
       const isValid = plateRegex.test(value);
       
       return isValid 
