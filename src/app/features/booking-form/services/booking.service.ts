@@ -27,7 +27,7 @@ export class BookingService {
       // Simulate success (90% of the time) or failure (10% of the time)
       const success = Math.random() > 0.1;
       
-      return of(generateMockBookingResponse(success));
+      return of(generateMockBookingResponse(success, bookingData));
     }
 
     // Real API call

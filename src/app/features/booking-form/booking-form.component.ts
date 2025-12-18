@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { LeafSiteService } from './services/leaf-site.service';
 import { BookingService } from './services/booking.service';
 import { CustomValidators } from './validators/custom.validators';
@@ -38,7 +39,8 @@ export class BookingFormComponent implements OnInit {
     private leafSiteService: LeafSiteService,
     private bookingService: BookingService,
     private cdr: ChangeDetectorRef,
-    private zone: NgZone
+    private zone: NgZone,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -132,9 +134,11 @@ export class BookingFormComponent implements OnInit {
     this.bookingService.createBooking(bookingData).subscribe({
       next: (response) => {
         this.isSubmitting = false;
-        if (response.success) {
-          this.successMessage = `Booking successful! Your booking ID is: ${response.bookingId}`;
-          this.resetForm();
+        if (response.success && response.ticket) {
+          // Navigate to ticket details page with ticket data
+          this.router.navigate(['/ticket'], {
+            state: { ticket: response.ticket }
+          });
         } else {
           this.errorMessage = response.message || 'Booking failed. Please try again.';
         }
