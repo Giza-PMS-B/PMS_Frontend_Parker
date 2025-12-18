@@ -58,18 +58,39 @@ export const MOCK_LEAF_SITES_RESPONSE: LeafSiteResponse = {
 };
 
 // Function to generate mock booking response
-export function generateMockBookingResponse(success: boolean = true): BookingResponse {
-  if (success) {
+export function generateMockBookingResponse(
+  success: boolean = true,
+  bookingData?: any
+): BookingResponse {
+  if (success && bookingData) {
     const bookingId = `BK-${new Date().getFullYear()}-${Math.floor(Math.random() * 999999).toString().padStart(6, '0')}`;
+    const now = new Date();
+    const endTime = new Date(now.getTime() + bookingData.hours * 60 * 60 * 1000);
+    
+    // Find the site name from mock data
+    const site = MOCK_LEAF_SITES.find(s => s.id === bookingData.siteId);
+    
     return {
       success: true,
       bookingId: bookingId,
-      message: 'Booking created successfully (MOCK DATA)'
+      message: 'Booking created successfully',
+      ticket: {
+        ticket_id: bookingId,
+        siteName: site?.name || 'Unknown Site',
+        plateNumber: bookingData.plateNumber,
+        phoneNumber: bookingData.phoneNumber,
+        from: now.toISOString(),
+        to: endTime.toISOString(),
+        totalPrice: bookingData.totalPrice,
+        hours: bookingData.hours,
+        pricePerHour: site?.pricePerHour || 0,
+        createdAt: now.toISOString()
+      }
     };
   } else {
     return {
       success: false,
-      message: 'Booking failed (MOCK DATA)',
+      message: 'Booking failed',
       errors: ['This is a simulated error for testing']
     };
   }

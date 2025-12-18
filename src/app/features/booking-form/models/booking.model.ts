@@ -13,6 +13,21 @@ export interface BookingResponse {
   bookingId?: string;   // Generated booking ID if successful
   message?: string;     // Response message
   errors?: string[];    // Validation errors if any
+  ticket?: TicketDetails; // Ticket details if successful
+}
+
+// Interface for ticket details
+export interface TicketDetails {
+  ticket_id: string;      // Unique ticket identifier
+  siteName: string;       // Name of the parking site
+  plateNumber: string;    // Vehicle plate number
+  phoneNumber: string;    // User's phone number
+  from: string;           // Start date/time (ISO format)
+  to: string;             // End date/time (ISO format)
+  totalPrice: number;     // Total price in SAR
+  hours: number;          // Number of hours booked
+  pricePerHour: number;   // Price per hour
+  createdAt: string;      // Booking creation timestamp
 }
 
 // Interface for price calculation display

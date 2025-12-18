@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { LeafSiteService } from './services/leaf-site.service';
 import { BookingService } from './services/booking.service';
 import { CustomValidators } from './validators/custom.validators';
@@ -38,7 +39,8 @@ export class BookingFormComponent implements OnInit {
     private leafSiteService: LeafSiteService,
     private bookingService: BookingService,
     private cdr: ChangeDetectorRef,
-    private zone: NgZone
+    private zone: NgZone,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -132,9 +134,11 @@ export class BookingFormComponent implements OnInit {
     this.bookingService.createBooking(bookingData).subscribe({
       next: (response) => {
         this.isSubmitting = false;
-        if (response.success) {
-          this.successMessage = `Booking successful! Your booking ID is: ${response.bookingId}`;
-          this.resetForm();
+        if (response.success && response.ticket) {
+          // Navigate to ticket details page with ticket data
+          this.router.navigate(['/ticket'], {
+            state: { ticket: response.ticket }
+          });
         } else {
           this.errorMessage = response.message || 'Booking failed. Please try again.';
         }
@@ -170,5 +174,30 @@ export class BookingFormComponent implements OnInit {
   // Check if form is valid for enabling submit button
   get isFormValid(): boolean {
     return this.bookingForm.valid && !this.isSubmitting;
+  }
+
+  // Enforce plate number format while typing
+  onPlateNumberInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.toUpperCase();
+    
+    // Remove any characters that don't match the pattern
+    // Allow only digits at the start, then letters
+    value = value.replace(/[^0-9A-Z]/g, '');
+    
+    // Enforce max 4 digits at start
+    const digits = value.match(/^\d+/)?.[0] || '';
+    const letters = value.replace(/^\d+/, '');
+    
+    // Limit to 4 digits and 3 letters
+    const limitedDigits = digits.slice(0, 4);
+    const limitedLetters = letters.slice(0, 3);
+    
+    const newValue = limitedDigits + limitedLetters;
+    
+    if (newValue !== input.value) {
+      input.value = newValue;
+      this.bookingForm.patchValue({ plateNumber: newValue });
+    }
   }
 }
