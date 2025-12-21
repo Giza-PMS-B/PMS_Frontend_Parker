@@ -19,7 +19,8 @@ export interface BookingResponse {
 // Interface for ticket details
 export interface TicketDetails {
   ticket_id: string;      // Unique ticket identifier
-  siteName: string;       // Name of the parking site
+  siteName: string;       // Name of the parking site (English)
+  siteNameAr: string;     // Name of the parking site (Arabic)
   plateNumber: string;    // Vehicle plate number
   phoneNumber: string;    // User's phone number
   from: string;           // Start date/time (ISO format)

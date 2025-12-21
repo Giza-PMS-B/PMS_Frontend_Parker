@@ -2,7 +2,8 @@
 // Interface for a single leaf site (parking location)
 export interface LeafSite {
   id: number;           // Unique identifier for the site
-  name: string;         // Site name displayed in dropdown
+  name: string;         // Site name in English
+  nameAr: string;       // Site name in Arabic
   pricePerHour: number; // Price per hour for this site
   availableSlots: number; // Number of available parking slots
   location?: string;    // Optional: physical location
