@@ -1,4 +1,4 @@
-import { LeafSite, LeafSiteResponse } from '../models/leaf-site.model';
+import { LeafSite, LeafSiteResponse, LeafSiteDisplay } from '../models/leaf-site.model';
 import { BookingResponse } from '../models/booking.model';
 
 /**
@@ -6,98 +6,79 @@ import { BookingResponse } from '../models/booking.model';
  * Set useMockData = true in services to use this data
  */
 
-// Mock leaf sites data
-export const MOCK_LEAF_SITES: LeafSite[] = [
+// Mock leaf sites data (using LeafSiteDisplay for frontend)
+export const MOCK_LEAF_SITES: LeafSiteDisplay[] = [
   {
-    id: 1,
+    id: '550e8400-e29b-41d4-a716-446655440001',
     name: 'Downtown Parking',
     nameAr: 'موقف وسط المدينة',
     pricePerHour: 10,
     availableSlots: 50,
-    location: 'Downtown District',
-    description: 'Central location near shopping centers'
+    path: '/Downtown',
+    integrationCode: 'DT001'
   },
   {
-    id: 2,
+    id: '550e8400-e29b-41d4-a716-446655440002',
     name: 'Airport Parking',
     nameAr: 'موقف المطار',
     pricePerHour: 15,
     availableSlots: 100,
-    location: 'King Khalid International Airport',
-    description: 'Convenient parking near all terminals'
+    path: '/Airport',
+    integrationCode: 'AP001'
   },
   {
-    id: 3,
+    id: '550e8400-e29b-41d4-a716-446655440003',
     name: 'Mall Parking',
     nameAr: 'موقف المول',
     pricePerHour: 8,
     availableSlots: 200,
-    location: 'Riyadh Park Mall',
-    description: 'Covered parking with direct mall access'
+    path: '/Mall',
+    integrationCode: 'ML001'
   },
   {
-    id: 4,
+    id: '550e8400-e29b-41d4-a716-446655440004',
     name: 'Business District',
     nameAr: 'الحي التجاري',
     pricePerHour: 12,
     availableSlots: 75,
-    location: 'King Abdullah Financial District',
-    description: 'Premium parking for business professionals'
+    path: '/Business',
+    integrationCode: 'BD001'
   },
   {
-    id: 5,
+    id: '550e8400-e29b-41d4-a716-446655440005',
     name: 'Stadium Parking',
     nameAr: 'موقف الملعب',
     pricePerHour: 20,
     availableSlots: 300,
-    location: 'King Fahd International Stadium',
-    description: 'Large capacity parking for events'
+    path: '/Stadium',
+    integrationCode: 'ST001'
   }
 ];
 
 // Mock response for getLeafSites
 export const MOCK_LEAF_SITES_RESPONSE: LeafSiteResponse = {
   success: true,
-  data: MOCK_LEAF_SITES,
+  data: [],
   message: 'Sites retrieved successfully (MOCK DATA)'
 };
 
 // Function to generate mock booking response
+// Returns BookingResponse matching backend Ticket model
 export function generateMockBookingResponse(
-  success: boolean = true,
-  bookingData?: any
+  bookingData: any
 ): BookingResponse {
-  if (success && bookingData) {
-    const bookingId = `BK-${new Date().getFullYear()}-${Math.floor(Math.random() * 999999).toString().padStart(6, '0')}`;
-    const now = new Date();
-    const endTime = new Date(now.getTime() + bookingData.hours * 60 * 60 * 1000);
-    
-    // Find the site name from mock data
-    const site = MOCK_LEAF_SITES.find(s => s.id === bookingData.siteId);
-    
-    return {
-      success: true,
-      bookingId: bookingId,
-      message: 'Booking created successfully',
-      ticket: {
-        ticket_id: bookingId,
-        siteName: site?.name || 'Unknown Site',
-        siteNameAr: site?.nameAr || 'موقع غير معروف',
-        plateNumber: bookingData.plateNumber,
-        phoneNumber: bookingData.phoneNumber,
-        from: now.toISOString(),
-        to: endTime.toISOString(),
-        totalPrice: bookingData.totalPrice,
-        hours: bookingData.hours,
-        pricePerHour: site?.pricePerHour || 0,
-        createdAt: now.toISOString()
-      }
-    };
-  } else {
-    return {
-      success: false,
-      message: 'Booking failed',
-      errors: ['This is a simulated error for testing']
-    };
-  }
+  const ticketId = `${crypto.randomUUID()}`;
+  const now = new Date();
+  const endTime = new Date(now.getTime() + bookingData.NoOfHours * 60 * 60 * 1000);
+  
+  return {
+    Id: ticketId,
+    SiteName: bookingData.SiteName,
+    PlateNumber: bookingData.PlateNumber,
+    PhoneNumber: bookingData.PhoneNumber,
+    BookingFrom: now.toISOString(),
+    BookingTo: endTime.toISOString(),
+    TotalPrice: bookingData.TotalPrice,
+    SiteId: bookingData.SiteId
+  };
 }

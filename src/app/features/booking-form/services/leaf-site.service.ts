@@ -1,9 +1,8 @@
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, delay, asyncScheduler } from 'rxjs';
 import { map, observeOn } from 'rxjs/operators';
-import { LeafSite, LeafSiteResponse } from '../models/leaf-site.model';
+import { LeafSite, LeafSiteResponse, LeafSiteDisplay } from '../models/leaf-site.model';
 import { environment } from '../../../../environments/environment';
 import { MOCK_LEAF_SITES_RESPONSE, MOCK_LEAF_SITES } from './mock-data';
 
@@ -22,23 +21,20 @@ export class LeafSiteService {
 
   /**
    * Fetches all leaf sites from backend or mock data
-   * GET request to /getleafsites endpoint
+   * GET request to /api/Site/leaves endpoint
    */
-  getLeafSites(): Observable<LeafSite[]> {
+  getLeafSites(): Observable<LeafSiteDisplay[]> {
     if (this.useMockData) {
       // Return mock data immediately
       return of(MOCK_LEAF_SITES);
     }
 
-    // Real API call
-    return this.http.get<LeafSiteResponse>(`${this.apiUrl}/getleafsites`)
+    // Real API call - backend returns array directly
+    return this.http.get<LeafSite[]>(`${this.apiUrl}/Site/leaves`)
       .pipe(
-        map(response => {
-          // Check if request was successful
-          if (!response.success) {
-            throw new Error(response.message || 'Failed to fetch sites');
-          }
-          return response.data; // Return array of leaf sites
+        map(sites => {
+          // Transform backend Site model to frontend LeafSiteDisplay
+          return sites.map(site => this.transformToDisplay(site));
         })
       );
   }
@@ -47,7 +43,7 @@ export class LeafSiteService {
    * Fetches a specific leaf site by ID
    * Useful for getting price per hour for a selected site
    */
-  getSiteById(id: number): Observable<LeafSite> {
+  getSiteById(id: string): Observable<LeafSiteDisplay> {
     if (this.useMockData) {
       // Return mock data
       console.log(`🔧 Using MOCK data for site ID: ${id}`);
@@ -59,6 +55,24 @@ export class LeafSiteService {
     }
 
     // Real API call
-    return this.http.get<LeafSite>(`${this.apiUrl}/leafsites/${id}`);
+    return this.http.get<LeafSite>(`${this.apiUrl}/Site/${id}`)
+      .pipe(
+        map(site => this.transformToDisplay(site))
+      );
+  }
+
+  /**
+   * Transform backend Site model to frontend LeafSiteDisplay
+   */
+  private transformToDisplay(site: LeafSite): LeafSiteDisplay {
+    return {
+      id: site.Id,
+      name: site.NameEn,
+      nameAr: site.NameAr,
+      pricePerHour: site.PricePerHour || 0,
+      availableSlots: site.NumberOfSolts || 0,
+      path: site.Path,
+      integrationCode: site.IntegrationCode || undefined
+    };
   }
 }
