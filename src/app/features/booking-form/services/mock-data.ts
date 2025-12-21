@@ -11,6 +11,7 @@ export const MOCK_LEAF_SITES: LeafSite[] = [
   {
     id: 1,
     name: 'Downtown Parking',
+    nameAr: 'موقف وسط المدينة',
     pricePerHour: 10,
     availableSlots: 50,
     location: 'Downtown District',
@@ -19,6 +20,7 @@ export const MOCK_LEAF_SITES: LeafSite[] = [
   {
     id: 2,
     name: 'Airport Parking',
+    nameAr: 'موقف المطار',
     pricePerHour: 15,
     availableSlots: 100,
     location: 'King Khalid International Airport',
@@ -27,6 +29,7 @@ export const MOCK_LEAF_SITES: LeafSite[] = [
   {
     id: 3,
     name: 'Mall Parking',
+    nameAr: 'موقف المول',
     pricePerHour: 8,
     availableSlots: 200,
     location: 'Riyadh Park Mall',
@@ -35,6 +38,7 @@ export const MOCK_LEAF_SITES: LeafSite[] = [
   {
     id: 4,
     name: 'Business District',
+    nameAr: 'الحي التجاري',
     pricePerHour: 12,
     availableSlots: 75,
     location: 'King Abdullah Financial District',
@@ -43,6 +47,7 @@ export const MOCK_LEAF_SITES: LeafSite[] = [
   {
     id: 5,
     name: 'Stadium Parking',
+    nameAr: 'موقف الملعب',
     pricePerHour: 20,
     availableSlots: 300,
     location: 'King Fahd International Stadium',
@@ -77,6 +82,7 @@ export function generateMockBookingResponse(
       ticket: {
         ticket_id: bookingId,
         siteName: site?.name || 'Unknown Site',
+        siteNameAr: site?.nameAr || 'موقع غير معروف',
         plateNumber: bookingData.plateNumber,
         phoneNumber: bookingData.phoneNumber,
         from: now.toISOString(),

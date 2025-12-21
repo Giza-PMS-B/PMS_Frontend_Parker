@@ -1,14 +1,16 @@
 <div class="booking-container">
+  <app-language-switcher></app-language-switcher>
+  
   <div class="booking-card">
     <!-- Header -->
     <div class="booking-header">
-      <h1 class="booking-title">Reserve Parking Slot</h1>
+      <h1 class="booking-title">{{ 'booking.title' | translate }}</h1>
     </div>
 
     <!-- Loading State -->
     <div *ngIf="loadingSites" class="loading-state">
       <div class="spinner"></div>
-      <p>Loading parking sites...</p>
+      <p>{{ 'booking.loadingSites' | translate }}</p>
     </div>
 
     <!-- Success Message -->
@@ -33,7 +35,7 @@
       <!-- Site Name Dropdown -->
       <div class="form-group">
         <label for="siteId" class="form-label">
-          Site Name <span class="required">*</span>
+          {{ 'booking.siteLabel' | translate }} <span class="required">{{ 'booking.required' | translate }}</span>
         </label>
         <div class="select-wrapper">
           <select 
@@ -41,9 +43,9 @@
             formControlName="siteId" 
             class="form-select"
             [class.error]="siteId?.invalid && siteId?.touched">
-            <option value="">Select Site</option>
+            <option value="">{{ 'booking.selectSite' | translate }}</option>
             <option *ngFor="let site of leafSites" [value]="site.id">
-              {{ site.name }}
+              {{ getSiteName(site) }}
             </option>
           </select>
           <svg class="select-icon" viewBox="0 0 20 20" fill="currentColor">
@@ -51,14 +53,14 @@
           </svg>
         </div>
         <div *ngIf="siteId?.invalid && siteId?.touched" class="error-message">
-          Please select a parking site
+          {{ 'validation.siteRequired' | translate }}
         </div>
       </div>
 
       <!-- Plate Number Input -->
       <div class="form-group">
         <label for="plateNumber" class="form-label">
-          Plate Number <span class="required">*</span>
+          {{ 'booking.plateLabel' | translate }} <span class="required">{{ 'booking.required' | translate }}</span>
         </label>
         <input 
           type="text" 
@@ -66,13 +68,13 @@
           formControlName="plateNumber" 
           class="form-input"
           [class.error]="plateNumber?.invalid && plateNumber?.touched"
-          placeholder="e.g., 123ABC"
+          [placeholder]="'booking.platePlaceholder' | translate"
           maxlength="7"
           (input)="onPlateNumberInput($event)">
         <div *ngIf="plateNumber?.invalid && plateNumber?.touched" class="error-message">
-          <span *ngIf="plateNumber?.errors?.['required']">Plate number is required</span>
+          <span *ngIf="plateNumber?.errors?.['required']">{{ 'validation.plateRequired' | translate }}</span>
           <span *ngIf="plateNumber?.errors?.['invalidPlateNumber']">
-            Plate number must be 1-4 digits followed by exactly 3 letters (e.g., 123ABC)
+            {{ 'validation.plateInvalid' | translate }}
           </span>
         </div>
       </div>
@@ -80,7 +82,7 @@
       <!-- Phone Number Input -->
       <div class="form-group">
         <label for="phoneNumber" class="form-label">
-          Phone Number <span class="required">*</span>
+          {{ 'booking.phoneLabel' | translate }} <span class="required">{{ 'booking.required' | translate }}</span>
         </label>
         <input 
           type="tel" 
@@ -88,12 +90,12 @@
           formControlName="phoneNumber" 
           class="form-input"
           [class.error]="phoneNumber?.invalid && phoneNumber?.touched"
-          placeholder="05XXXXXXXX"
+          [placeholder]="'booking.phonePlaceholder' | translate"
           maxlength="10">
         <div *ngIf="phoneNumber?.invalid && phoneNumber?.touched" class="error-message">
-          <span *ngIf="phoneNumber?.errors?.['required']">Phone number is required</span>
+          <span *ngIf="phoneNumber?.errors?.['required']">{{ 'validation.phoneRequired' | translate }}</span>
           <span *ngIf="phoneNumber?.errors?.['invalidPhoneNumber']">
-            Invalid format. Must start with 05 and be 10 digits (e.g., 0512345678)
+            {{ 'validation.phoneInvalid' | translate }}
           </span>
         </div>
       </div>
@@ -101,7 +103,7 @@
       <!-- Hours Input -->
       <div class="form-group">
         <label for="hours" class="form-label">
-          Hours <span class="required">*</span>
+          {{ 'booking.hoursLabel' | translate }} <span class="required">{{ 'booking.required' | translate }}</span>
         </label>
         <input 
           type="number" 
@@ -111,25 +113,25 @@
           [class.error]="hours?.invalid && hours?.touched"
           min="1" 
           max="24"
-          placeholder="1 - 24">
+          [placeholder]="'booking.hoursPlaceholder' | translate">
         <div *ngIf="hours?.invalid && hours?.touched" class="error-message">
-          <span *ngIf="hours?.errors?.['required']">Hours is required</span>
+          <span *ngIf="hours?.errors?.['required']">{{ 'validation.hoursRequired' | translate }}</span>
           <span *ngIf="hours?.errors?.['min'] || hours?.errors?.['max'] || hours?.errors?.['invalidHours']">
-            Hours must be between 1 and 24
+            {{ 'validation.hoursInvalid' | translate }}
           </span>
         </div>
       </div>
 
       <!-- Price Summary -->
       <div class="price-summary">
-        <h2 class="price-summary-title">Price Summary</h2>
+        <h2 class="price-summary-title">{{ 'booking.priceSummary' | translate }}</h2>
         <div class="price-row">
-          <span class="price-label">Price per Hour:</span>
-          <span class="price-value">{{ priceCalculation.pricePerHour }} SAR</span>
+          <span class="price-label">{{ 'booking.pricePerHour' | translate }}</span>
+          <span class="price-value">{{ priceCalculation.pricePerHour }} {{ 'booking.sar' | translate }}</span>
         </div>
         <div class="price-row total">
-          <span class="price-label">Total Price:</span>
-          <span class="price-value">{{ priceCalculation.totalPrice }} SAR</span>
+          <span class="price-label">{{ 'booking.totalPrice' | translate }}</span>
+          <span class="price-value">{{ priceCalculation.totalPrice }} {{ 'booking.sar' | translate }}</span>
         </div>
       </div>
 
@@ -139,10 +141,10 @@
         class="submit-button"
         [disabled]="!isFormValid"
         [class.loading]="isSubmitting">
-        <span *ngIf="!isSubmitting">Book Ticket</span>
+        <span *ngIf="!isSubmitting">{{ 'booking.bookButton' | translate }}</span>
         <span *ngIf="isSubmitting" class="button-loading">
           <span class="spinner-small"></span>
-          Processing...
+          {{ 'booking.processing' | translate }}
         </span>
       </button>
     </form>  <!-- Closing form tag moved here -->

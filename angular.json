@@ -35,6 +35,9 @@
             ],
             "styles": [
               "src/assets/styles/styles.scss"
+            ],
+            "polyfills": [
+              "@angular/localize/init"
             ]
           },
           "configurations": {

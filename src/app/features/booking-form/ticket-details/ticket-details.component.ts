@@ -2,11 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TicketDetails } from '../models/booking.model';
+import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher.component';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { TranslationService } from '../../../services/translation.service';
 
 @Component({
   selector: 'app-ticket-details',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LanguageSwitcherComponent, TranslatePipe],
   templateUrl: './ticket-details.component.html',
   styleUrls: ['./ticket-details.component.scss']
 })
@@ -15,7 +18,8 @@ export class TicketDetailsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    public translationService: TranslationService
   ) {}
 
   ngOnInit(): void {
@@ -70,5 +74,13 @@ export class TicketDetailsComponent implements OnInit {
 
   printTicket(): void {
     window.print();
+  }
+
+  // Get site name in current language
+  getSiteName(): string {
+    if (!this.ticket) return '';
+    return this.translationService.currentLanguage === 'ar' 
+      ? this.ticket.siteNameAr 
+      : this.ticket.siteName;
   }
 }

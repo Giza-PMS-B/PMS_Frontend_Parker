@@ -7,11 +7,14 @@ import { BookingService } from './services/booking.service';
 import { CustomValidators } from './validators/custom.validators';
 import { LeafSite } from './models/leaf-site.model';
 import { BookingRequest, PriceCalculation } from './models/booking.model';
+import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher.component';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-booking-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LanguageSwitcherComponent, TranslatePipe],
   templateUrl: './booking-form.component.html',
   styleUrls: ['./booking-form.component.scss']
 })
@@ -40,7 +43,8 @@ export class BookingFormComponent implements OnInit {
     private bookingService: BookingService,
     private cdr: ChangeDetectorRef,
     private zone: NgZone,
-    private router: Router
+    private router: Router,
+    public translationService: TranslationService
   ) {}
 
   ngOnInit(): void {
@@ -182,12 +186,13 @@ export class BookingFormComponent implements OnInit {
     let value = input.value.toUpperCase();
     
     // Remove any characters that don't match the pattern
-    // Allow only digits at the start, then letters
+    // Allow only English digits (0-9) and English letters (A-Z)
     value = value.replace(/[^0-9A-Z]/g, '');
     
-    // Enforce max 4 digits at start
-    const digits = value.match(/^\d+/)?.[0] || '';
-    const letters = value.replace(/^\d+/, '');
+    // Extract digits at the start
+    const digits = value.match(/^[0-9]+/)?.[0] || '';
+    // Extract letters after digits
+    const letters = value.replace(/^[0-9]+/, '');
     
     // Limit to 4 digits and 3 letters
     const limitedDigits = digits.slice(0, 4);
@@ -199,5 +204,10 @@ export class BookingFormComponent implements OnInit {
       input.value = newValue;
       this.bookingForm.patchValue({ plateNumber: newValue });
     }
+  }
+
+  // Get site name in current language
+  getSiteName(site: LeafSite): string {
+    return this.translationService.currentLanguage === 'ar' ? site.nameAr : site.name;
   }
 }
