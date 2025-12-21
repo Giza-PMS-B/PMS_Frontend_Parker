@@ -1,13 +1,27 @@
 
 // Interface for a single leaf site (parking location)
+// Matches backend Site model
 export interface LeafSite {
-  id: number;           // Unique identifier for the site
-  name: string;         // Site name in English
-  nameAr: string;       // Site name in Arabic
-  pricePerHour: number; // Price per hour for this site
-  availableSlots: number; // Number of available parking slots
-  location?: string;    // Optional: physical location
-  description?: string; // Optional: additional details
+  Id: string;                // Unique identifier (Guid) - matches backend
+  Path: string;              // Site path
+  NameEn: string;            // Site name in English
+  NameAr: string;            // Site name in Arabic
+  PricePerHour: number | null; // Price per hour for this site
+  IntegrationCode?: string | null; // Optional integration code
+  NumberOfSolts?: number | null;   // Number of available parking slots (typo in backend: Solts)
+  IsLeaf: boolean;           // Indicates if this is a leaf site
+  ParentId?: string | null;  // Parent site ID (Guid)
+}
+
+// Interface for internal use (camelCase for easier frontend usage)
+export interface LeafSiteDisplay {
+  id: string;
+  name: string;
+  nameAr: string;
+  pricePerHour: number;
+  availableSlots: number;
+  path?: string;
+  integrationCode?: string;
 }
 
 // Interface for the API response when fetching leaf sites

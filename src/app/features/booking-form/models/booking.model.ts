@@ -1,22 +1,28 @@
 // Interface for booking request data sent to backend
+// Matches CreateTicketDTO from backend
 export interface BookingRequest {
-  siteId: number;       // ID of selected leaf site
-  plateNumber: string;  // Vehicle plate number
-  phoneNumber: string;  // User's phone number
-  hours: number;        // Number of hours to reserve
-  totalPrice: number;   // Calculated total price
+  SiteName: string;     // Name of the parking site
+  PlateNumber: string;  // Vehicle plate number
+  PhoneNumber: string;  // User's phone number
+  TotalPrice: number;   // Calculated total price
+  SiteId: string;       // ID of selected leaf site (Guid)
+  NoOfHours: number;    // Number of hours to reserve
 }
 
 // Interface for booking response from backend
+// Matches Ticket model from backend
 export interface BookingResponse {
-  success: boolean;     // Indicates if booking was successful
-  bookingId?: string;   // Generated booking ID if successful
-  message?: string;     // Response message
-  errors?: string[];    // Validation errors if any
-  ticket?: TicketDetails; // Ticket details if successful
+  Id: string;             // Unique ticket identifier (Guid)
+  SiteName: string;       // Name of the parking site
+  PlateNumber: string;    // Vehicle plate number
+  PhoneNumber: string;    // User's phone number
+  BookingFrom: string;    // Start date/time (ISO format)
+  BookingTo: string;      // End date/time (ISO format)
+  TotalPrice: number;     // Total price in SAR
+  SiteId: string;         // Site ID (Guid)
 }
 
-// Interface for ticket details
+// Interface for ticket details (used internally in frontend)
 export interface TicketDetails {
   ticket_id: string;      // Unique ticket identifier
   siteName: string;       // Name of the parking site (English)

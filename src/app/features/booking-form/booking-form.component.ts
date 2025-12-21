@@ -5,8 +5,8 @@ import { Router } from '@angular/router';
 import { LeafSiteService } from './services/leaf-site.service';
 import { BookingService } from './services/booking.service';
 import { CustomValidators } from './validators/custom.validators';
-import { LeafSite } from './models/leaf-site.model';
-import { BookingRequest, PriceCalculation } from './models/booking.model';
+import { LeafSite, LeafSiteDisplay } from './models/leaf-site.model';
+import { BookingRequest, PriceCalculation, TicketDetails } from './models/booking.model';
 import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher.component';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../services/translation.service';
@@ -20,7 +20,7 @@ import { TranslationService } from '../../services/translation.service';
 })
 export class BookingFormComponent implements OnInit {
   bookingForm!: FormGroup;
-  leafSites: LeafSite[] = [];
+  leafSites: LeafSiteDisplay[] = [];
   priceCalculation: PriceCalculation = {
     pricePerHour: 0,
     hours: 1,
@@ -106,7 +106,7 @@ export class BookingFormComponent implements OnInit {
       return;
     }
 
-    const selectedSite = this.leafSites.find(site => site.id === Number(siteId));
+    const selectedSite = this.leafSites.find(site => site.id === siteId);
     if (selectedSite) {
       const hours = this.bookingForm.get('hours')?.value || 1;
       this.priceCalculation = {
@@ -127,25 +127,41 @@ export class BookingFormComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
+    const selectedSite = this.leafSites.find(site => site.id === this.bookingForm.value.siteId);
+    
+    // Prepare booking data matching backend CreateTicketDTO
     const bookingData: BookingRequest = {
-      siteId: Number(this.bookingForm.value.siteId),
-      plateNumber: this.bookingForm.value.plateNumber,
-      phoneNumber: this.bookingForm.value.phoneNumber,
-      hours: this.bookingForm.value.hours,
-      totalPrice: this.priceCalculation.totalPrice
+      SiteName: selectedSite?.name || '',
+      PlateNumber: this.bookingForm.value.plateNumber,
+      PhoneNumber: this.bookingForm.value.phoneNumber,
+      TotalPrice: this.priceCalculation.totalPrice,
+      SiteId: this.bookingForm.value.siteId,
+      NoOfHours: this.bookingForm.value.hours
     };
 
     this.bookingService.createBooking(bookingData).subscribe({
       next: (response) => {
         this.isSubmitting = false;
-        if (response.success && response.ticket) {
-          // Navigate to ticket details page with ticket data
-          this.router.navigate(['/ticket'], {
-            state: { ticket: response.ticket }
-          });
-        } else {
-          this.errorMessage = response.message || 'Booking failed. Please try again.';
-        }
+        
+        // Convert backend response to TicketDetails for display
+        const ticketDetails = {
+          ticket_id: response.Id,
+          siteName: selectedSite?.name || response.SiteName,
+          siteNameAr: selectedSite?.nameAr || '',
+          plateNumber: response.PlateNumber,
+          phoneNumber: response.PhoneNumber,
+          from: response.BookingFrom,
+          to: response.BookingTo,
+          totalPrice: response.TotalPrice,
+          hours: bookingData.NoOfHours,
+          pricePerHour: selectedSite?.pricePerHour || 0,
+          createdAt: response.BookingFrom
+        };
+        
+        // Navigate to ticket details page with ticket data
+        this.router.navigate(['/ticket'], {
+          state: { ticket: ticketDetails }
+        });
       },
       error: (error) => {
         this.isSubmitting = false;
@@ -207,7 +223,7 @@ export class BookingFormComponent implements OnInit {
   }
 
   // Get site name in current language
-  getSiteName(site: LeafSite): string {
+  getSiteName(site: LeafSiteDisplay): string {
     return this.translationService.currentLanguage === 'ar' ? site.nameAr : site.name;
   }
 }
