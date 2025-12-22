@@ -21,7 +21,7 @@ pipeline {
             steps {
                 git(
                     url: 'https://github.com/Giza-PMS-B/PMS_Frontend_Parker.git',
-                    branch: 'swarmFeature',
+                    branch: 'deploying',
                     credentialsId: 'github-pat-wagih'
                 )
             }
@@ -42,7 +42,7 @@ pipeline {
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
+                    credentialsId: 'Docker-PAT',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
