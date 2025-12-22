@@ -6,16 +6,16 @@ import { environment } from '../../../../environments/environment';
 import { generateMockBookingResponse } from './mock-data';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BookingService {
-  private apiUrl = environment.apiUrl;
+  private apiUrl = 'http://localhost:5001/api/Booking';
 
   // Toggle between mock data and real API
   // Set to true to use mock data, false to use real backend
-  private useMockData = true; // ← Change this to false when backend is ready
+  private useMockData = false; // ← Change this to false when backend is ready
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   /**
    * Submits booking data to backend or returns mock response
@@ -28,14 +28,10 @@ export class BookingService {
     }
 
     // Real API call
-    return this.http.post<BookingResponse>(
-      `${this.apiUrl}/booking`,
-      bookingData,
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    return this.http.post<BookingResponse>(`${this.apiUrl}`, bookingData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 }
