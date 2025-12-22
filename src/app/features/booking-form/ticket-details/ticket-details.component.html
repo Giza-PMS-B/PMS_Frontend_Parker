@@ -1,6 +1,6 @@
 <div class="ticket-container">
   <app-language-switcher></app-language-switcher>
-  
+
   <div class="ticket-card" *ngIf="ticket">
     <!-- Header -->
     <div class="ticket-header">
@@ -12,32 +12,34 @@
     <div class="ticket-details">
       <div class="detail-row">
         <span class="detail-label">{{ 'ticket.ticketId' | translate }}</span>
-        <span class="detail-value">{{ ticket.ticket_id }}</span>
+        <span class="detail-value">{{ ticket.ticket_id || 'N/A' }}</span>
       </div>
 
       <div class="detail-row">
         <span class="detail-label">{{ 'ticket.siteName' | translate }}</span>
-        <span class="detail-value">{{ getSiteName() }}</span>
+        <span class="detail-value">{{ getSiteName() || 'N/A' }}</span>
       </div>
 
       <div class="detail-row">
         <span class="detail-label">{{ 'ticket.plateNumber' | translate }}</span>
-        <span class="detail-value">{{ ticket.plateNumber }}</span>
+        <span class="detail-value">{{ ticket.plateNumber || 'N/A' }}</span>
       </div>
 
       <div class="detail-row">
         <span class="detail-label">{{ 'ticket.phoneNumber' | translate }}</span>
-        <span class="detail-value">{{ ticket.phoneNumber }}</span>
+        <span class="detail-value">{{ ticket.phoneNumber || 'N/A' }}</span>
       </div>
 
       <div class="detail-row">
         <span class="detail-label">{{ 'ticket.hours' | translate }}</span>
-        <span class="detail-value">{{ ticket.hours }}</span>
+        <span class="detail-value">{{ ticket.hours || 'N/A' }}</span>
       </div>
 
       <div class="detail-row highlight">
         <span class="detail-label">{{ 'ticket.totalPrice' | translate }}</span>
-        <span class="detail-value price">{{ ticket.totalPrice }} {{ 'booking.sar' | translate }}</span>
+        <span class="detail-value price"
+          >{{ ticket.totalPrice }} {{ 'booking.sar' | translate }}</span
+        >
       </div>
     </div>
 
@@ -51,7 +53,9 @@
     <!-- Footer -->
     <div class="ticket-footer">
       <p>{{ 'ticket.footer' | translate }}</p>
-      <p class="timestamp">{{ 'ticket.bookedOn' | translate }} {{ formatDateTime(ticket.createdAt) }}</p>
+      <p class="timestamp">
+        {{ 'ticket.bookedOn' | translate }} {{ formatDateTime(ticket.createdAt) }}
+      </p>
     </div>
   </div>
 </div>

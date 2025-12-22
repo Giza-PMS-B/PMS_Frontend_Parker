@@ -72,13 +72,13 @@ export function generateMockBookingResponse(
   const endTime = new Date(now.getTime() + bookingData.NoOfHours * 60 * 60 * 1000);
   
   return {
-    Id: ticketId,
-    SiteName: bookingData.SiteName,
-    PlateNumber: bookingData.PlateNumber,
-    PhoneNumber: bookingData.PhoneNumber,
-    BookingFrom: now.toISOString(),
-    BookingTo: endTime.toISOString(),
-    TotalPrice: bookingData.TotalPrice,
-    SiteId: bookingData.SiteId
+    id: ticketId,
+    siteName: bookingData.SiteName,
+    plateNumber: bookingData.PlateNumber,
+    phoneNumber: bookingData.PhoneNumber,
+    bookingFrom: now.toISOString(),
+    bookingTo: endTime.toISOString(),
+    totalPrice: bookingData.TotalPrice,
+    siteId: bookingData.SiteId
   };
 }

@@ -34,6 +34,17 @@ export class TicketDetailsComponent implements OnInit {
       this.ticket = history.state.ticket;
     }
 
+    console.log('=== TICKET DETAILS COMPONENT DEBUG ===');
+    console.log('Received ticket data:', this.ticket);
+    if (this.ticket) {
+      console.log('ticket.ticket_id:', this.ticket.ticket_id);
+      console.log('ticket.plateNumber:', this.ticket.plateNumber);
+      console.log('ticket.phoneNumber:', this.ticket.phoneNumber);
+      console.log('ticket.siteName:', this.ticket.siteName);
+      console.log('ticket.totalPrice:', this.ticket.totalPrice);
+      console.log('ticket.hours:', this.ticket.hours);
+    }
+
     // If still no ticket, redirect back to booking form
     if (!this.ticket) {
       this.router.navigate(['/']);

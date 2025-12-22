@@ -32,11 +32,6 @@ export class BookingFormComponent implements OnInit {
   successMessage = '';
   loadingSites = true;
 
-  // Show mock data indicator (check if services are using mock data)
-  get isUsingMockData(): boolean {
-    return (this.leafSiteService as any).useMockData || (this.bookingService as any).useMockData;
-  }
-
   constructor(
     private fb: FormBuilder,
     private leafSiteService: LeafSiteService,
@@ -164,22 +159,38 @@ export class BookingFormComponent implements OnInit {
     this.bookingService.createBooking(bookingData).subscribe({
       next: (response) => {
         this.isSubmitting = false;
-        console.log(response);
+        console.log('=== BOOKING RESPONSE DEBUG ===');
+        console.log('Full response:', response);
+        console.log('Response keys:', Object.keys(response));
+        console.log('Response.id:', response.id);
+        console.log('Response.plateNumber:', response.plateNumber);
+        console.log('Response.phoneNumber:', response.phoneNumber);
+        console.log('Response.siteName:', response.siteName);
+        console.log('Response.totalPrice:', response.totalPrice);
+        console.log('Response.bookingFrom:', response.bookingFrom);
+        console.log('Response.bookingTo:', response.bookingTo);
+        console.log('=== BOOKING RESPONSE DEBUG End ===');
 
         // Convert backend response to TicketDetails for display
         const ticketDetails = {
-          ticket_id: response.Id,
-          siteName: selectedSite?.name || response.SiteName,
+          ticket_id: response.id,
+          siteName: selectedSite?.name || response.siteName,
           siteNameAr: selectedSite?.nameAr || '',
-          plateNumber: response.PlateNumber,
-          phoneNumber: response.PhoneNumber,
-          from: response.BookingFrom,
-          to: response.BookingTo,
-          totalPrice: response.TotalPrice,
+          plateNumber: response.plateNumber,
+          phoneNumber: response.phoneNumber,
+          from: response.bookingFrom,
+          to: response.bookingTo,
+          totalPrice: response.totalPrice,
           hours: bookingData.NoOfHours,
-          pricePerHour: selectedSite?.pricePerHour || 0,
-          createdAt: response.BookingFrom,
+          pricePerHour: response.totalPrice || 0,
+          createdAt: response.bookingFrom,
         };
+
+        console.log('=== TICKET DETAILS DEBUG ===');
+        console.log('Mapped ticketDetails:', ticketDetails);
+        console.log('ticketDetails.ticket_id:', ticketDetails.ticket_id);
+        console.log('ticketDetails.plateNumber:', ticketDetails.plateNumber);
+        console.log('ticketDetails.phoneNumber:', ticketDetails.phoneNumber);
 
         // Navigate to ticket details page with ticket data
         this.router.navigate(['/ticket'], {
