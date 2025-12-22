@@ -6,10 +6,9 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME     = "pms-parker-frontend"
-        STACK_NAME     = "pms_parker"
+        IMAGE_NAME     = "wagihh/pms-parker-frontend"
+        STACK_NAME     = "pms-parker"
         SERVICE_NAME   = "parker-frontend"
-        APP_PORT       = "8086"
 
         BUILD_IMAGE    = "${IMAGE_NAME}:${BUILD_NUMBER}"
         LATEST_IMAGE   = "${IMAGE_NAME}:latest"
@@ -22,7 +21,7 @@ pipeline {
             steps {
                 git(
                     url: 'https://github.com/Giza-PMS-B/PMS_Frontend_Parker.git',
-                    branch: 'deploying',
+                    branch: 'swarmFeature',
                     credentialsId: 'github-pat-wagih'
                 )
             }
@@ -37,6 +36,20 @@ pipeline {
                     exit 1
                   fi
                 '''
+            }
+        }
+
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                      echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    '''
+                }
             }
         }
 
@@ -60,6 +73,15 @@ pipeline {
             }
         }
 
+        stage('Push Docker Image') {
+            steps {
+                sh """
+                  docker push ${BUILD_IMAGE}
+                  docker push ${LATEST_IMAGE}
+                """
+            }
+        }
+
         stage('Deploy to Docker Swarm') {
             steps {
                 sh """
@@ -72,7 +94,6 @@ pipeline {
             steps {
                 sh '''
                   sleep 10
-
                   RUNNING=$(docker service ps ${STACK_NAME}_${SERVICE_NAME} \
                     --filter "desired-state=running" \
                     --format "{{.CurrentState}}" | grep Running | wc -l)
@@ -89,15 +110,11 @@ pipeline {
     post {
         failure {
             echo "❌ Deployment failed — rolling back"
-
             script {
                 if (PREVIOUS_IMAGE?.trim()) {
                     sh """
                       IMAGE_TAG=${PREVIOUS_IMAGE} docker stack deploy -c docker-compose.yml ${STACK_NAME}
                     """
-                    echo "🔁 Rollback completed"
-                } else {
-                    echo "⚠️ No previous image found — rollback skipped"
                 }
             }
         }
@@ -107,3 +124,4 @@ pipeline {
         }
     }
 }
+
