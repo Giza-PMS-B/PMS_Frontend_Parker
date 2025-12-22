@@ -1,6 +1,6 @@
 <div class="booking-container">
   <app-language-switcher></app-language-switcher>
-  
+
   <div class="booking-card">
     <!-- Header -->
     <div class="booking-header">
@@ -11,12 +11,19 @@
     <div *ngIf="loadingSites" class="loading-state">
       <div class="spinner"></div>
       <p>{{ 'booking.loadingSites' | translate }}</p>
+      <button type="button" class="retry-button" (click)="loadLeafSites()">
+        {{ 'booking.retry' | translate }}
+      </button>
     </div>
 
     <!-- Success Message -->
     <div *ngIf="successMessage" class="alert alert-success">
       <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+          clip-rule="evenodd"
+        />
       </svg>
       {{ successMessage }}
     </div>
@@ -24,32 +31,41 @@
     <!-- Error Message -->
     <div *ngIf="errorMessage" class="alert alert-error">
       <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+          clip-rule="evenodd"
+        />
       </svg>
       {{ errorMessage }}
     </div>
 
     <!-- Booking Form -->
     <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()" *ngIf="!loadingSites">
-      
       <!-- Site Name Dropdown -->
       <div class="form-group">
         <label for="siteId" class="form-label">
-          {{ 'booking.siteLabel' | translate }} <span class="required">{{ 'booking.required' | translate }}</span>
+          {{ 'booking.siteLabel' | translate }}
+          <span class="required">{{ 'booking.required' | translate }}</span>
         </label>
         <div class="select-wrapper">
-          <select 
-            id="siteId" 
-            formControlName="siteId" 
+          <select
+            id="siteId"
+            formControlName="siteId"
             class="form-select"
-            [class.error]="siteId?.invalid && siteId?.touched">
+            [class.error]="siteId?.invalid && siteId?.touched"
+          >
             <option value="">{{ 'booking.selectSite' | translate }}</option>
             <option *ngFor="let site of leafSites" [value]="site.id">
               {{ getSiteName(site) }}
             </option>
           </select>
           <svg class="select-icon" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            <path
+              fill-rule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            />
           </svg>
         </div>
         <div *ngIf="siteId?.invalid && siteId?.touched" class="error-message">
@@ -60,19 +76,23 @@
       <!-- Plate Number Input -->
       <div class="form-group">
         <label for="plateNumber" class="form-label">
-          {{ 'booking.plateLabel' | translate }} <span class="required">{{ 'booking.required' | translate }}</span>
+          {{ 'booking.plateLabel' | translate }}
+          <span class="required">{{ 'booking.required' | translate }}</span>
         </label>
-        <input 
-          type="text" 
-          id="plateNumber" 
-          formControlName="plateNumber" 
+        <input
+          type="text"
+          id="plateNumber"
+          formControlName="plateNumber"
           class="form-input"
           [class.error]="plateNumber?.invalid && plateNumber?.touched"
           [placeholder]="'booking.platePlaceholder' | translate"
           maxlength="7"
-          (input)="onPlateNumberInput($event)">
+          (input)="onPlateNumberInput($event)"
+        />
         <div *ngIf="plateNumber?.invalid && plateNumber?.touched" class="error-message">
-          <span *ngIf="plateNumber?.errors?.['required']">{{ 'validation.plateRequired' | translate }}</span>
+          <span *ngIf="plateNumber?.errors?.['required']">{{
+            'validation.plateRequired' | translate
+          }}</span>
           <span *ngIf="plateNumber?.errors?.['invalidPlateNumber']">
             {{ 'validation.plateInvalid' | translate }}
           </span>
@@ -82,18 +102,22 @@
       <!-- Phone Number Input -->
       <div class="form-group">
         <label for="phoneNumber" class="form-label">
-          {{ 'booking.phoneLabel' | translate }} <span class="required">{{ 'booking.required' | translate }}</span>
+          {{ 'booking.phoneLabel' | translate }}
+          <span class="required">{{ 'booking.required' | translate }}</span>
         </label>
-        <input 
-          type="tel" 
-          id="phoneNumber" 
-          formControlName="phoneNumber" 
+        <input
+          type="tel"
+          id="phoneNumber"
+          formControlName="phoneNumber"
           class="form-input"
           [class.error]="phoneNumber?.invalid && phoneNumber?.touched"
           [placeholder]="'booking.phonePlaceholder' | translate"
-          maxlength="10">
+          maxlength="10"
+        />
         <div *ngIf="phoneNumber?.invalid && phoneNumber?.touched" class="error-message">
-          <span *ngIf="phoneNumber?.errors?.['required']">{{ 'validation.phoneRequired' | translate }}</span>
+          <span *ngIf="phoneNumber?.errors?.['required']">{{
+            'validation.phoneRequired' | translate
+          }}</span>
           <span *ngIf="phoneNumber?.errors?.['invalidPhoneNumber']">
             {{ 'validation.phoneInvalid' | translate }}
           </span>
@@ -103,20 +127,26 @@
       <!-- Hours Input -->
       <div class="form-group">
         <label for="hours" class="form-label">
-          {{ 'booking.hoursLabel' | translate }} <span class="required">{{ 'booking.required' | translate }}</span>
+          {{ 'booking.hoursLabel' | translate }}
+          <span class="required">{{ 'booking.required' | translate }}</span>
         </label>
-        <input 
-          type="number" 
-          id="hours" 
-          formControlName="hours" 
+        <input
+          type="number"
+          id="hours"
+          formControlName="hours"
           class="form-input"
           [class.error]="hours?.invalid && hours?.touched"
-          min="1" 
+          min="1"
           max="24"
-          [placeholder]="'booking.hoursPlaceholder' | translate">
+          [placeholder]="'booking.hoursPlaceholder' | translate"
+        />
         <div *ngIf="hours?.invalid && hours?.touched" class="error-message">
-          <span *ngIf="hours?.errors?.['required']">{{ 'validation.hoursRequired' | translate }}</span>
-          <span *ngIf="hours?.errors?.['min'] || hours?.errors?.['max'] || hours?.errors?.['invalidHours']">
+          <span *ngIf="hours?.errors?.['required']">{{
+            'validation.hoursRequired' | translate
+          }}</span>
+          <span
+            *ngIf="hours?.errors?.['min'] || hours?.errors?.['max'] || hours?.errors?.['invalidHours']"
+          >
             {{ 'validation.hoursInvalid' | translate }}
           </span>
         </div>
@@ -127,26 +157,32 @@
         <h2 class="price-summary-title">{{ 'booking.priceSummary' | translate }}</h2>
         <div class="price-row">
           <span class="price-label">{{ 'booking.pricePerHour' | translate }}</span>
-          <span class="price-value">{{ priceCalculation.pricePerHour }} {{ 'booking.sar' | translate }}</span>
+          <span class="price-value"
+            >{{ priceCalculation.pricePerHour }} {{ 'booking.sar' | translate }}</span
+          >
         </div>
         <div class="price-row total">
           <span class="price-label">{{ 'booking.totalPrice' | translate }}</span>
-          <span class="price-value">{{ priceCalculation.totalPrice }} {{ 'booking.sar' | translate }}</span>
+          <span class="price-value"
+            >{{ priceCalculation.totalPrice }} {{ 'booking.sar' | translate }}</span
+          >
         </div>
       </div>
 
       <!-- Submit Button -->
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         class="submit-button"
         [disabled]="!isFormValid"
-        [class.loading]="isSubmitting">
+        [class.loading]="isSubmitting"
+      >
         <span *ngIf="!isSubmitting">{{ 'booking.bookButton' | translate }}</span>
         <span *ngIf="isSubmitting" class="button-loading">
           <span class="spinner-small"></span>
           {{ 'booking.processing' | translate }}
         </span>
       </button>
-    </form>  <!-- Closing form tag moved here -->
+    </form>
+    <!-- Closing form tag moved here -->
   </div>
 </div>

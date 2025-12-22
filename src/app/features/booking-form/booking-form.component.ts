@@ -16,7 +16,7 @@ import { TranslationService } from '../../services/translation.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, LanguageSwitcherComponent, TranslatePipe],
   templateUrl: './booking-form.component.html',
-  styleUrls: ['./booking-form.component.scss']
+  styleUrls: ['./booking-form.component.scss'],
 })
 export class BookingFormComponent implements OnInit {
   bookingForm!: FormGroup;
@@ -24,14 +24,14 @@ export class BookingFormComponent implements OnInit {
   priceCalculation: PriceCalculation = {
     pricePerHour: 0,
     hours: 1,
-    totalPrice: 0
+    totalPrice: 0,
   };
   isLoading = false;
   isSubmitting = false;
   errorMessage = '';
   successMessage = '';
   loadingSites = true;
-  
+
   // Show mock data indicator (check if services are using mock data)
   get isUsingMockData(): boolean {
     return (this.leafSiteService as any).useMockData || (this.bookingService as any).useMockData;
@@ -58,28 +58,50 @@ export class BookingFormComponent implements OnInit {
       siteId: ['', Validators.required],
       plateNumber: ['', [Validators.required, CustomValidators.plateNumber()]],
       phoneNumber: ['', [Validators.required, CustomValidators.saudiPhoneNumber()]],
-      hours: [1, [Validators.required, Validators.min(1), Validators.max(24), CustomValidators.hours()]]
+      hours: [
+        1,
+        [Validators.required, Validators.min(1), Validators.max(24), CustomValidators.hours()],
+      ],
     });
   }
 
-  private loadLeafSites(): void {
+  public loadLeafSites(): void {
+    console.log('=== Starting to load leaf sites ===');
     this.loadingSites = true;
     this.errorMessage = '';
-    
+
     this.leafSiteService.getLeafSites().subscribe({
       next: (sites) => {
+        console.log('=== Received sites in component ===');
+        console.log('Sites count:', sites.length);
+        console.log('Sites data:', sites);
+
         this.zone.run(() => {
           this.leafSites = sites;
           this.loadingSites = false;
+          console.log('Loading state set to false');
+          console.log('Component leafSites:', this.leafSites);
+
+          // Force change detection
+          this.cdr.detectChanges();
         });
       },
       error: (error) => {
+        console.error('=== Error in component subscription ===');
+        console.error('Error loading leaf sites:', error);
+
         this.zone.run(() => {
           this.errorMessage = 'Failed to load parking sites. Please try again.';
           this.loadingSites = false;
+          console.log('Loading state set to false (error case)');
+
+          // Force change detection
+          this.cdr.detectChanges();
         });
-        console.error('Error loading leaf sites:', error);
-      }
+      },
+      complete: () => {
+        console.log('=== Observable completed ===');
+      },
     });
   }
 
@@ -101,18 +123,18 @@ export class BookingFormComponent implements OnInit {
       this.priceCalculation = {
         pricePerHour: 0,
         hours: this.bookingForm.get('hours')?.value || 1,
-        totalPrice: 0
+        totalPrice: 0,
       };
       return;
     }
 
-    const selectedSite = this.leafSites.find(site => site.id === siteId);
+    const selectedSite = this.leafSites.find((site) => site.id === siteId);
     if (selectedSite) {
       const hours = this.bookingForm.get('hours')?.value || 1;
       this.priceCalculation = {
         pricePerHour: selectedSite.pricePerHour,
         hours: hours,
-        totalPrice: selectedSite.pricePerHour * hours
+        totalPrice: selectedSite.pricePerHour * hours,
       };
     }
   }
@@ -127,8 +149,8 @@ export class BookingFormComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const selectedSite = this.leafSites.find(site => site.id === this.bookingForm.value.siteId);
-    
+    const selectedSite = this.leafSites.find((site) => site.id === this.bookingForm.value.siteId);
+
     // Prepare booking data matching backend CreateTicketDTO
     const bookingData: BookingRequest = {
       SiteName: selectedSite?.name || '',
@@ -136,13 +158,14 @@ export class BookingFormComponent implements OnInit {
       PhoneNumber: this.bookingForm.value.phoneNumber,
       TotalPrice: this.priceCalculation.totalPrice,
       SiteId: this.bookingForm.value.siteId,
-      NoOfHours: this.bookingForm.value.hours
+      NoOfHours: this.bookingForm.value.hours,
     };
 
     this.bookingService.createBooking(bookingData).subscribe({
       next: (response) => {
         this.isSubmitting = false;
-        
+        console.log(response);
+
         // Convert backend response to TicketDetails for display
         const ticketDetails = {
           ticket_id: response.Id,
@@ -155,19 +178,19 @@ export class BookingFormComponent implements OnInit {
           totalPrice: response.TotalPrice,
           hours: bookingData.NoOfHours,
           pricePerHour: selectedSite?.pricePerHour || 0,
-          createdAt: response.BookingFrom
+          createdAt: response.BookingFrom,
         };
-        
+
         // Navigate to ticket details page with ticket data
         this.router.navigate(['/ticket'], {
-          state: { ticket: ticketDetails }
+          state: { ticket: ticketDetails },
         });
       },
       error: (error) => {
         this.isSubmitting = false;
         this.errorMessage = 'An error occurred while processing your booking. Please try again.';
         console.error('Booking error:', error);
-      }
+      },
     });
   }
 
@@ -176,20 +199,28 @@ export class BookingFormComponent implements OnInit {
       siteId: '',
       plateNumber: '',
       phoneNumber: '',
-      hours: 1
+      hours: 1,
     });
     this.priceCalculation = {
       pricePerHour: 0,
       hours: 1,
-      totalPrice: 0
+      totalPrice: 0,
     };
   }
 
   // Getter methods for template
-  get siteId() { return this.bookingForm.get('siteId'); }
-  get plateNumber() { return this.bookingForm.get('plateNumber'); }
-  get phoneNumber() { return this.bookingForm.get('phoneNumber'); }
-  get hours() { return this.bookingForm.get('hours'); }
+  get siteId() {
+    return this.bookingForm.get('siteId');
+  }
+  get plateNumber() {
+    return this.bookingForm.get('plateNumber');
+  }
+  get phoneNumber() {
+    return this.bookingForm.get('phoneNumber');
+  }
+  get hours() {
+    return this.bookingForm.get('hours');
+  }
 
   // Check if form is valid for enabling submit button
   get isFormValid(): boolean {
@@ -200,22 +231,22 @@ export class BookingFormComponent implements OnInit {
   onPlateNumberInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     let value = input.value.toUpperCase();
-    
+
     // Remove any characters that don't match the pattern
     // Allow only English digits (0-9) and English letters (A-Z)
     value = value.replace(/[^0-9A-Z]/g, '');
-    
+
     // Extract digits at the start
     const digits = value.match(/^[0-9]+/)?.[0] || '';
     // Extract letters after digits
     const letters = value.replace(/^[0-9]+/, '');
-    
+
     // Limit to 4 digits and 3 letters
     const limitedDigits = digits.slice(0, 4);
     const limitedLetters = letters.slice(0, 3);
-    
+
     const newValue = limitedDigits + limitedLetters;
-    
+
     if (newValue !== input.value) {
       input.value = newValue;
       this.bookingForm.patchValue({ plateNumber: newValue });
