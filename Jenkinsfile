@@ -1,15 +1,12 @@
 pipeline {
     agent any
 
-    triggers {
-        pollSCM('H/2 * * * *')
-    }
-
+  
     environment {
         // =========================
         // Docker
         // =========================
-        DOCKER_REPO  = "wagihh"
+        DOCKER_REPO  = "omareldamaty"
         IMAGE_NAME   = "pms-parker-frontend"
 
         IMAGE_LATEST = "${DOCKER_REPO}/${IMAGE_NAME}:latest"
