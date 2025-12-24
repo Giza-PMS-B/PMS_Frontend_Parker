@@ -65,6 +65,8 @@ pipeline {
                 sh """
                   docker build -t ${BUILD_IMAGE} .
                   docker tag ${BUILD_IMAGE} ${LATEST_IMAGE}
+                  docker push ${BUILD_IMAGE}
+                  docker push ${LATEST_IMAGE}
                 """
             }
         }
@@ -96,7 +98,7 @@ pipeline {
 
     post {
         failure {
-            echo "❌ Deployment failed — rolling back"
+            echo "❌ Parker Frontend deployment failed — rolling back"
             script {
                 if (PREVIOUS_IMAGE?.trim()) {
                     sh """
