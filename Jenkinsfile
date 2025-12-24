@@ -17,7 +17,7 @@ pipeline {
             steps {
                 git(
                     url: 'https://github.com/Giza-PMS-B/PMS_Frontend_Parker.git',
-                    branch: 'main',
+                    branch: 'latest',
                     credentialsId: 'github-pat-wagih'
                 )
             }
