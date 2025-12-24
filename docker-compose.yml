@@ -10,3 +10,6 @@ services:
       restart_policy:
         condition: on-failure
 
+networks:
+  pms-net:
+    driver: overlay
