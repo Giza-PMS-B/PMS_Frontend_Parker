@@ -6,8 +6,18 @@ pipeline {
     }
 
     environment {
-        IMAGE_LATEST = "pms-parker-frontend:latest"
-        IMAGE_BACKUP = "pms-parker-frontend:previous"
+        // =========================
+        // Docker
+        // =========================
+        DOCKER_REPO  = "wagihh"
+        IMAGE_NAME   = "pms-parker-frontend"
+
+        IMAGE_LATEST = "${DOCKER_REPO}/${IMAGE_NAME}:latest"
+        IMAGE_BACKUP = "${DOCKER_REPO}/${IMAGE_NAME}:previous"
+
+        // =========================
+        // Swarm
+        // =========================
         STACK_NAME   = "pms_parker"
     }
 
@@ -27,8 +37,9 @@ pipeline {
             steps {
                 sh '''
                   if docker image inspect ${IMAGE_LATEST} > /dev/null 2>&1; then
-                      echo "Backing up image"
+                      echo "Backing up current image"
                       docker tag ${IMAGE_LATEST} ${IMAGE_BACKUP}
+                      docker push ${IMAGE_BACKUP}
                   else
                       echo "No previous image found"
                   fi
@@ -40,6 +51,30 @@ pipeline {
             steps {
                 sh '''
                   docker build -t ${IMAGE_LATEST} .
+                '''
+            }
+        }
+
+        stage('Docker Hub Login') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'Docker-PAT',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh '''
+                      echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    '''
+                }
+            }
+        }
+
+        stage('Push Image to Docker Hub') {
+            steps {
+                sh '''
+                  docker push ${IMAGE_LATEST}
                 '''
             }
         }
@@ -64,7 +99,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Parker Frontend deployed with Docker Swarm (3 replicas, load balanced)"
+            echo "✅ Parker Frontend built, pushed, and deployed successfully"
         }
 
         failure {
@@ -73,6 +108,7 @@ pipeline {
             sh '''
               if docker image inspect ${IMAGE_BACKUP} > /dev/null 2>&1; then
                   docker tag ${IMAGE_BACKUP} ${IMAGE_LATEST}
+                  docker push ${IMAGE_LATEST}
                   docker stack deploy -c docker-compose.yml ${STACK_NAME}
                   echo "🔁 Rollback completed"
               else
@@ -82,4 +118,3 @@ pipeline {
         }
     }
 }
-
