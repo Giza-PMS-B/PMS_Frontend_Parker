@@ -80,7 +80,7 @@ pipeline {
         stage('Health Check (Swarm Native)') {
             steps {
                 sh '''
-                  sleep 10
+                  sleep 30
                   RUNNING=$(docker service ps ${STACK_NAME}_${SERVICE_NAME} \
                     --filter "desired-state=running" \
                     --format "{{.CurrentState}}" | grep Running | wc -l)
