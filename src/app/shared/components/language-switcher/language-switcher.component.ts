@@ -15,8 +15,8 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
   styles: [`
     .lang-switcher {
       position: fixed;
-      top: 20px;
-      right: 20px;
+      top: 35px;
+      right: 35px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -46,7 +46,7 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
 
     @media (max-width: 600px) {
       .lang-switcher {
-        top: 10px;
+        top: 50px;
         right: 10px;
         padding: 8px 16px;
         font-size: 12px;
