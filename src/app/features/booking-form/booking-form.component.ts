@@ -264,6 +264,23 @@ export class BookingFormComponent implements OnInit {
     }
   }
 
+  // Enforce phone number format while typing (numbers only)
+  onPhoneNumberInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value;
+
+    // Remove any non-digit characters
+    value = value.replace(/[^0-9]/g, '');
+
+    // Limit to 10 digits
+    value = value.slice(0, 10);
+
+    if (value !== input.value) {
+      input.value = value;
+      this.bookingForm.patchValue({ phoneNumber: value });
+    }
+  }
+
   // Get site name in current language
   getSiteName(site: LeafSiteDisplay): string {
     return this.translationService.currentLanguage === 'ar' ? site.nameAr : site.name;

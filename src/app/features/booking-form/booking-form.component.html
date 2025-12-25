@@ -112,6 +112,7 @@
           [class.error]="phoneNumber?.invalid && phoneNumber?.touched"
           [placeholder]="'booking.phonePlaceholder' | translate"
           maxlength="10"
+          (input)="onPhoneNumberInput($event)"
         />
         <div *ngIf="phoneNumber?.invalid && phoneNumber?.touched" class="error-message">
           <span *ngIf="phoneNumber?.errors?.['required']">{{
