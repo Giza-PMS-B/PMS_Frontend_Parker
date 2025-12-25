@@ -55,7 +55,6 @@
             class="form-select"
             [class.error]="siteId?.invalid && siteId?.touched"
           >
-            <option value="">{{ 'booking.selectSite' | translate }}</option>
             <option *ngFor="let site of leafSites" [value]="site.id">
               {{ getSiteName(site) }}
             </option>
