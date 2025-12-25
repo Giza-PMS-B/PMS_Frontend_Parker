@@ -94,4 +94,13 @@ export class TicketDetailsComponent implements OnInit {
       ? this.ticket.siteNameAr 
       : this.ticket.siteName;
   }
+
+  // Convert numbers to Arabic numerals
+  formatNumber(num: number | string): string {
+    if (this.translationService.currentLanguage === 'ar') {
+      const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+      return String(num).replace(/[0-9]/g, (digit) => arabicNumerals[parseInt(digit)]);
+    }
+    return String(num);
+  }
 }
