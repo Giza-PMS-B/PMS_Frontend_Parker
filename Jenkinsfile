@@ -65,8 +65,6 @@ pipeline {
                 sh """
                   docker build -t ${BUILD_IMAGE} .
                   docker tag ${BUILD_IMAGE} ${LATEST_IMAGE}
-                  docker push ${BUILD_IMAGE}
-                  docker push ${LATEST_IMAGE}
                 """
             }
         }
