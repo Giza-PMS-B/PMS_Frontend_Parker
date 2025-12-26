@@ -1,14 +1,14 @@
 pipeline {
     agent any
 
-    triggers {
-        pollSCM('H/2 * * * *')
-    }
-
     environment {
-        IMAGE_LATEST = "pms-parker-frontend:latest"
-        IMAGE_BACKUP = "pms-parker-frontend:previous"
-        STACK_NAME   = "pms_parker"
+        IMAGE_NAME     = "wagihh/pms-parker-frontend"
+        STACK_NAME     = "pms-parker"
+        SERVICE_NAME   = "parker-frontend"
+
+        BUILD_IMAGE    = "${IMAGE_NAME}:${BUILD_NUMBER}"
+        LATEST_IMAGE   = "${IMAGE_NAME}:latest"
+        PREVIOUS_IMAGE = ""
     }
 
     stages {
@@ -23,63 +23,91 @@ pipeline {
             }
         }
 
-        stage('Backup Current Image (Rollback Prep)') {
+        stage('Verify Docker Swarm') {
             steps {
                 sh '''
-                  if docker image inspect ${IMAGE_LATEST} > /dev/null 2>&1; then
-                      echo "Backing up image"
-                      docker tag ${IMAGE_LATEST} ${IMAGE_BACKUP}
-                  else
-                      echo "No previous image found"
+                  STATE=$(docker info --format '{{.Swarm.LocalNodeState}}')
+                  if [ "$STATE" != "active" ]; then
+                    echo "Docker Swarm is not active"
+                    exit 1
                   fi
                 '''
             }
         }
 
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'Docker-PAT',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                      echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    '''
+                }
+            }
+        }
+
+        stage('Save Previous Image') {
+            steps {
+                script {
+                    PREVIOUS_IMAGE = sh(
+                        script: "docker service inspect ${STACK_NAME}_${SERVICE_NAME} --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}' || true",
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
-                sh '''
-                  docker build -t ${IMAGE_LATEST} .
-                '''
+                sh """
+                  docker build -t ${BUILD_IMAGE} .
+                  docker tag ${BUILD_IMAGE} ${LATEST_IMAGE}
+                """
             }
         }
 
         stage('Deploy to Docker Swarm') {
             steps {
-                sh '''
-                  docker stack deploy -c docker-compose.yml ${STACK_NAME}
-                '''
+                sh """
+                  IMAGE_TAG=${BUILD_IMAGE} docker stack deploy -c docker-compose.yml ${STACK_NAME}
+                """
             }
         }
 
-        stage('Health Check') {
+        stage('Health Check (Swarm Native)') {
             steps {
                 sh '''
-                  sleep 10
-                  curl -f http://localhost:8086 || exit 1
+                  sleep 30
+                  RUNNING=$(docker service ps ${STACK_NAME}_${SERVICE_NAME} \
+                    --filter "desired-state=running" \
+                    --format "{{.CurrentState}}" | grep Running | wc -l)
+
+                  if [ "$RUNNING" -lt 1 ]; then
+                    echo "Service is not running"
+                    exit 1
+                  fi
                 '''
             }
         }
     }
 
     post {
-        success {
-            echo "✅ Parker Frontend deployed with Docker Swarm (3 replicas, load balanced)"
+        failure {
+            echo "❌ Parker Frontend deployment failed — rolling back"
+            script {
+                if (PREVIOUS_IMAGE?.trim()) {
+                    sh """
+                      IMAGE_TAG=${PREVIOUS_IMAGE} docker stack deploy -c docker-compose.yml ${STACK_NAME}
+                    """
+                }
+            }
         }
 
-        failure {
-            echo "❌ Deployment failed — rolling back"
-
-            sh '''
-              if docker image inspect ${IMAGE_BACKUP} > /dev/null 2>&1; then
-                  docker tag ${IMAGE_BACKUP} ${IMAGE_LATEST}
-                  docker stack deploy -c docker-compose.yml ${STACK_NAME}
-                  echo "🔁 Rollback completed"
-              else
-                  echo "⚠️ No backup image available"
-              fi
-            '''
+        success {
+            echo "✅ Parker Frontend deployed successfully"
         }
     }
 }
-
