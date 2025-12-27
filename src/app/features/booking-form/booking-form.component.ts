@@ -285,4 +285,11 @@ export class BookingFormComponent implements OnInit {
   getSiteName(site: LeafSiteDisplay): string {
     return this.translationService.currentLanguage === 'ar' ? site.nameAr : site.name;
   }
+
+  // Get site display with path
+  getSiteDisplay(site: LeafSiteDisplay): string {
+    const name = this.getSiteName(site);
+    const path = site.path ? ` (${site.path})` : '';
+    return name + path;
+  }
 }
