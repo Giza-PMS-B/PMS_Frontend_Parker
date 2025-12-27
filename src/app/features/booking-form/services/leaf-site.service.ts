@@ -10,7 +10,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class LeafSiteService {
   // Base URL from environment configuration
-  private apiUrl = environment.apiUrl;
+  private apiUrl = 'http://localhost:5001/api/Booking/leaves';
 
   constructor(private http: HttpClient) {}
 
@@ -21,7 +21,7 @@ export class LeafSiteService {
   getLeafSites(): Observable<LeafSiteDisplay[]> {
     console.log(`Fetching data from site service: ${this.apiUrl}/Site/leaves`);
     // Real API call - backend returns array directly
-    return this.http.get<LeafSite[]>(`${this.apiUrl}/Site/leaves`).pipe(
+    return this.http.get<LeafSite[]>(`${this.apiUrl}`).pipe(
       timeout(10000), // 10 second timeout
       map((sites) => {
         console.log('Raw API response:', sites);
