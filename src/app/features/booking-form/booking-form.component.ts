@@ -286,10 +286,12 @@ export class BookingFormComponent implements OnInit {
     return this.translationService.currentLanguage === 'ar' ? site.nameAr : site.name;
   }
 
-  // Get site display with path
+  // Get site display with path aligned to the right
   getSiteDisplay(site: LeafSiteDisplay): string {
     const name = this.getSiteName(site);
-    const path = site.path ? ` (${site.path})` : '';
-    return name + path;
+    const path = site.path || '';
+    // Add spacing to push path to the right (approximate)
+    const spacing = '\u00A0'.repeat(Math.max(0, 30 - name.length));
+    return path ? `${name}${spacing}${path}` : name;
   }
 }

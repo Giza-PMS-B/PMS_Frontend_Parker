@@ -168,6 +168,7 @@
   transition: all 0.2s;
   appearance: none;
   box-sizing: border-box;
+  font-family: 'Courier New', Courier, monospace;
 
   &:focus {
     outline: none;
@@ -182,6 +183,7 @@
   option {
     padding: 8px;
     font-size: 15px;
+    font-family: 'Courier New', Courier, monospace;
   }
 }
 

@@ -56,7 +56,7 @@
             [class.error]="siteId?.invalid && siteId?.touched"
           >
             <option *ngFor="let site of leafSites" [value]="site.id">
-              {{ getSiteName(site) }} {{ site.path ? '(' + site.path + ')' : '' }}
+              {{ getSiteDisplay(site) }}
             </option>
           </select>
           <svg class="select-icon" viewBox="0 0 20 20" fill="currentColor">
